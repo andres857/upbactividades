@@ -81,7 +81,6 @@
                     <div class="col-12 mt-5">
                         <p>Palabras escondidas:</p>     
                         {{hiddenWords}}
-                       
                     </div>
 
                     <div class=" col-12 drop-zone"
@@ -89,12 +88,16 @@
                         @drop.prevent="drop($event)">
                         <div v-for="word in hiddenWords" class="word hidden-word"
                             draggable="true"
-                            @dragstart="dragStartHiddenWord($event, word)">
+                            @dragstart="dragStartHiddenWord($event, word)"
+                            >
                             {{messageWords[word]}}
                         </div>
                     </div>
+                    <div class="col-12">
+                        <button @click="deleteAllWordsZoneDrop()" type="button" class="btn btn-danger">Eliminar palabras</button>
+                        <button @click="createHiddenWords()" type="button" class="btn btn-success">Esconder palabras</button>
+                    </div>
                 </div>
-                
             </div>
         `,
         methods: {
@@ -114,6 +117,12 @@
                 this.draggedWord = word;
                 event.dataTransfer.setData('text/plain', word);
             },
+            removeHiddenWordbyIndex(indexWord){
+                const index = this.hiddenWords.indexOf(indexWord);
+                if(index !== -1){
+                    this.hiddenWords.splice(index, 1)
+                }
+            },
             dragEnd(event) {
                 console.log('EVENT drag ends');
                 event.target.classList.remove('select-drag-word'); 
@@ -132,6 +141,9 @@
             isWordDragged(index) {
                 return this.hiddenWords.includes(index);
             },
+            deleteAllWordsZoneDrop(){
+                this.hiddenWords.splice(0, this.hiddenWords.length);
+            }
         },
         computed: {
             hiddenText() {
