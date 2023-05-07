@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
-    <head>
-    <meta charset="utf-8">
-    <title>UPB</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="./css/styles.css">
-        <style></style>
-    </head>
+<head>
+  <meta charset="utf-8">
+  <title>words</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="./css/styles.css">
+  <style></style>
+</head>
 
 <body>
     <div id="container1">
-        <images></images>
+        <textinput></textinput>
     </div>    
 </body>
 
@@ -18,88 +18,137 @@
     import {createApp} from '/js/vue.esm-browser.js'
     const app = createApp({})
 
-    const images = {
+    const text = {
         data() {
             return {
-                isButtonDropped: false,
-                isImageDropped: false,
-                imagesUrls:[
-                    {
-                        url: 'https://images.pexels.com/photos/7195269/pexels-photo-7195269.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-                        index: 0
-                    },
-                    {
-                        url: 'https://images.pexels.com/photos/102104/pexels-photo-102104.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-                        index: 1
-                    },
-                    {
-                        url: 'https://images.pexels.com/photos/2872767/pexels-photo-2872767.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-                        index: 2
-                    },
-                    {
-                        url: 'https://images.pexels.com/photos/4033025/pexels-photo-4033025.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-                        index: 3
-                    }
-                ],
-                droppedImages: [],
+                message: '',
+                showCapturedText: false,
+                hiddenWords: [],
+                draggedWord: null,
+                isButtonDropped: false
+
             }
         },
         template: `
-            <div class="container text-center">
-                <div class="row content-images">
-                    <div v-for="(image, index) in imagesUrls" :key="index" class="col-3">
-                        <div class="content-image">
-                            <img draggable="true" @dragstart="dragStartImage($event,index)" class="img-fluid same-size" :src="image.url"/>
-                            <p>{{index}}</p>
-                        </div>
-                    </div>
-                </div>
+            <div>
+                <div draggable="true" @dragstart="dragStartButton($event)" class="custom-button"> move me </div>
             </div>
-            <div class="container">
-                <div class="row justify-content-center mt-5 drop-zone-images">
-                    <div v-for=" (image, indexDrop) in imagesUrls" :key="indexDrop" @dragover="allowDropImage($event, indexDrop)" @drop="dropImage($event,indexDrop)" class="col-2 drop-zone-image">
-                        <div v-if="droppedImages[indexDrop]" >
-                            <img 
-                                class="drop-content-image"
-                                @dragstart="dragStartImage($event, indexDrop)" 
-                                :src="droppedImages[indexDrop].url"
-                            />
+            
+            <div class="drop-zone-button" @dragover.prevent="allowDrop($event)" @drop.prevent="dropButton($event)">
+                <div v-if="isButtonDropped" class="custom-button"> move me </div>
+            </div>
+
+            <div>
+                <textarea cols="80" rows="5" id="input-text" type="text" v-model="message"></textarea>
+            </div>
+            <div>
+                <button @click.prevent="showCapturedText = true">Capturar texto</button>
+                <div v-if="showCapturedText">
+                    <p>Selecciona las palabras que deseas esconder arrastrándolas a la zona de palabras escondidas:</p>
+                    <div v-for="(word, index) in message.split(' ')" :key="index" class="word"
+                        draggable="true"
+                        @dragstart="dragStart($event, word, index)">
+                        {{word}}
+                    </div>
+                    <p>Palabras escondidas:</p>
+                    <div class="drop-zone"
+                        @dragover.prevent="allowDrop($event)"
+                        @drop.prevent="drop($event)">
+                        <div v-for="word in hiddenWords" class="word hidden-word"
+                            draggable="true"
+                            @dragstart="dragStartHiddenWord($event, word)">
+                            {{word}}{{index}}
                         </div>
                     </div>
+                    <button @click.prevent="createHiddenText">Esconder palabras</button>
+                    {{hiddenWords}}
                 </div>
+                <p v-if="hiddenText">Texto con palabras escondidas:</p>
+                <p v-if="hiddenText">{{hiddenText}}</p>
             </div>
         `,
         methods: {
-            dragStartImage(event, index){
-                event.dataTransfer.setData('text/plain', index.toString());
-                console.log(event);
+            createHiddenText() {
+                let words = this.message.split(' ');
+                this.hiddenText = words.map(word => {
+                    return this.hiddenWords.includes(word) ? '____' : word;
+                }).join(' ');
             },
-            allowDropImage(event,indexDrop){
-                console.log('allow drop Image');
-                console.log(event);
+            dragStart(event, word, index) {
+                this.draggedWord = word;
+                event.dataTransfer.setData('text/plain', word);
+                event.dataTransfer.setData('text/plain', index);
+            },
+            allowDrop(event) {
                 event.preventDefault();
             },
-            dropImage(event, indexDrop){
+            drop(event) {
                 event.preventDefault();
-                const indexImage = event.dataTransfer.getData('text/plain');
-                const indexImageNum = parseInt(indexImage)
-
-                if(indexImageNum === indexDrop){
-                    this.droppedImages[indexDrop] = this.imagesUrls[indexDrop]
+                if (!this.hiddenWords.includes(this.draggedWord)) {
+                    this.hiddenWords.push(this.draggedWord);
                 }
+                if (droppedElement === 'custom-button') {
+            this.isButtonDropped = true;
+        }
+            },
+            dragStartHiddenWord(event, word) {
+                this.draggedWord = word;
+                event.dataTransfer.setData('text/plain', word);
+            },
+            dragStartButton(event) {
+                // Aquí puedes agregar cualquier acción que quieras realizar al iniciar el arrastre
+                event.dataTransfer.setData('text/plain', 'custom-button');
+            },
+            dropButton(event) {
+                event.preventDefault();
+                const droppedElement = event.dataTransfer.getData('text/plain');
+                if (droppedElement === 'custom-button') {
+                    this.isButtonDropped = true;
+                }
+            }
+            
+        },
+        computed: {
+            hiddenText() {
+                return this.$data.hiddenText;
+            }
+        }
+    }
+
+
+    const text1  = {
+        data(){
+            return{
+                message: '',
+            palabrasClave: [],
+            showCapturedText: false
+            }
+        },
+        template: `
+        <div>
+            <textarea cols="80" rows="5" id="input-text" type="text" v-model="message"></textarea>
+        </div>
+        <div>
+            <button @click.prevent="showCapturedText = true">Capturar texto</button>
+            <p v-if="showCapturedText">Texto capturado:</p>
+            <p v-if="showCapturedText">{{message}}</p>
+        </div>
+            
+        `,
+        methods: {
+            getText(){
+                this.textContent = this.message
             }
         },
         computed: {
         }
     }
-    app.component('images', images)
+    app.component('textinput', text)
     app.mount('#container1')
 
     app.config.errorHandler = (err) => {
         /* handle error */
-        console.log('pump error', err);
+        console.log('pump error');
     }
 </script>
-
-
 </html>
