@@ -38,10 +38,10 @@
         data() {
             return {
                 message: '',
+                messageWords:[],
                 showCapturedText: false,
                 hiddenWords: [],
                 draggedWord: null,
-                isButtonDropped: false,
                 draggedWordIndex: null,
             }
         },
@@ -52,23 +52,26 @@
                         <textarea cols="80" rows="5" id="input-text" type="text" v-model="message"></textarea>
                     </div>
                 </div>
+
                 <div class="row">
                     <div class="col-12">
-                        <button @click.prevent="showCapturedText=true" type="button" class="btn btn-success">Capturar texto</button>
-                        <p v-if="hiddenText">Texto con palabras escondidas:</p>
-                        <p v-if="hiddenText">{{hiddenText}}</p>
+                        <button @click="showCapturedText=true; createArrayWords(message)" @keyup.enter="showCapturedText=true" type="button" class="btn btn-success">Capturar texto</button>
                     </div>
                 </div>
+
                 <div class="row mt-5">
                     <div class="col-12">
+                        {{messageWords}}
                         <div v-if="showCapturedText">
                             <p>Selecciona las palabras que deseas esconder arrastrándolas a la zona de palabras escondidas:</p>
-                            <div v-for="(word, index) in message.split(' ')" :key="index" class="word" :class="{ 'dragged-word': isWordDragged(index) }"
+                            <div v-for="(word, index) in messageWords" :key="index" class="word" :class="{ 'dragged-word': isWordDragged(index) }"
                                 draggable="true"
                                 @dragstart="dragStart($event, word, index)"
                                 @dragend="dragEnd($event)"
                                 >
                                 {{word}}
+                                <br>
+                                {{index}}
                             </div>
                         </div>
                     </div>
@@ -76,59 +79,55 @@
 
                 <div class="row">
                     <div class="col-12 mt-5">
-                        <p>Palabras escondidas:</p>                            
+                        <p>Palabras escondidas:</p>     
+                        {{hiddenWords}}
+                       
                     </div>
+
                     <div class=" col-12 drop-zone"
                         @dragover.prevent="allowDrop($event)"
                         @drop.prevent="drop($event)">
                         <div v-for="word in hiddenWords" class="word hidden-word"
                             draggable="true"
                             @dragstart="dragStartHiddenWord($event, word)">
-                            {{word}}
+                            {{messageWords[word]}}
                         </div>
                     </div>
                 </div>
-
-                <div class="row">
-                    <div class="col-12">
-                        <button @click.prevent="createHiddenText" type="button" class="btn btn-success">Esconder palabras</button>
-                        {{hiddenWords}}
-                    <div>
-                </div>
+                
             </div>
         `,
         methods: {
-            createHiddenText() {
-                let words = this.message.split(' ');
-                this.hiddenText = words.map(word => {
-                    return this.hiddenWords.includes(word) ? '____' : word;
-                }).join(' ');
+            createArrayWords(message){
+                this.messageWords = message.split(" ");
             },
             dragStart(event, word, index) {
+                console.log('EVENT drag start');
+                console.log(word);
+                console.log(index);
                 this.draggedWord = word;
                 this.draggedWordIndex = index;
                 event.target.classList.add('select-drag-word');
+            },
+            dragStartHiddenWord(event, word) {
+                console.log('ANYEVENT');
+                this.draggedWord = word;
                 event.dataTransfer.setData('text/plain', word);
-                event.dataTransfer.setData('text/plain', index);
             },
             dragEnd(event) {
-            event.target.classList.remove('select-drag-word');
+                console.log('EVENT drag ends');
+                event.target.classList.remove('select-drag-word'); 
             },
             allowDrop(event) {
                 event.preventDefault();
             },
             drop(event) {
+                // pushea el index de las palabras a hiddenwords
+                console.log('EVENT drop');
                 event.preventDefault();
-                if (!this.hiddenWords.includes(this.draggedWordIndex)) {
+                if (this.hiddenWords.includes(this.draggedWordIndex) ===  false) {
                     this.hiddenWords.push(this.draggedWordIndex);
                 }
-                if (droppedElement === 'custom-button') {
-                    this.isButtonDropped = true;
-                }
-            },
-            dragStartHiddenWord(event, word) {
-                this.draggedWord = word;
-                event.dataTransfer.setData('text/plain', word);
             },
             isWordDragged(index) {
                 return this.hiddenWords.includes(index);
