@@ -41,44 +41,59 @@
                 showCapturedText: false,
                 hiddenWords: [],
                 draggedWord: null,
-                isButtonDropped: false
+                isButtonDropped: false,
+                draggedWordIndex: null,
             }
         },
         template: `
             <div class="container text-center">
                 <div class="row">
-                    <div class="col-10">
+                    <div class="col-12">
                         <textarea cols="80" rows="5" id="input-text" type="text" v-model="message"></textarea>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-10">
+                    <div class="col-12">
                         <button @click.prevent="showCapturedText=true" type="button" class="btn btn-success">Capturar texto</button>
-                        
-                        <div v-if="showCapturedText">
-                            <p>Selecciona las palabras que deseas esconder arrastrándolas a la zona de palabras escondidas:</p>
-                            <div v-for="(word, index) in message.split(' ')" :key="index" class="word"
-                                draggable="true"
-                                @dragstart="dragStart($event, word, index)">
-                                {{word}}
-                            </div>
-
-                            <p>Palabras escondidas:</p>
-                            <div class="drop-zone"
-                                @dragover.prevent="allowDrop($event)"
-                                @drop.prevent="drop($event)">
-                                <div v-for="word in hiddenWords" class="word hidden-word"
-                                    draggable="true"
-                                    @dragstart="dragStartHiddenWord($event, word)">
-                                    {{word}}{{index}}
-                                </div>
-                            </div>
-                            <button @click.prevent="createHiddenText">Esconder palabras</button>
-                            {{hiddenWords}}
-                        </div>
                         <p v-if="hiddenText">Texto con palabras escondidas:</p>
                         <p v-if="hiddenText">{{hiddenText}}</p>
                     </div>
+                </div>
+                <div class="row mt-5">
+                    <div class="col-12">
+                        <div v-if="showCapturedText">
+                            <p>Selecciona las palabras que deseas esconder arrastrándolas a la zona de palabras escondidas:</p>
+                            <div v-for="(word, index) in message.split(' ')" :key="index" class="word" :class="{ 'dragged-word': isWordDragged(index) }"
+                                draggable="true"
+                                @dragstart="dragStart($event, word, index)"
+                                @dragend="dragEnd($event)"
+                                >
+                                {{word}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 mt-5">
+                        <p>Palabras escondidas:</p>                            
+                    </div>
+                    <div class=" col-12 drop-zone"
+                        @dragover.prevent="allowDrop($event)"
+                        @drop.prevent="drop($event)">
+                        <div v-for="word in hiddenWords" class="word hidden-word"
+                            draggable="true"
+                            @dragstart="dragStartHiddenWord($event, word)">
+                            {{word}}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <button @click.prevent="createHiddenText" type="button" class="btn btn-success">Esconder palabras</button>
+                        {{hiddenWords}}
+                    <div>
                 </div>
             </div>
         `,
@@ -91,16 +106,21 @@
             },
             dragStart(event, word, index) {
                 this.draggedWord = word;
+                this.draggedWordIndex = index;
+                event.target.classList.add('select-drag-word');
                 event.dataTransfer.setData('text/plain', word);
                 event.dataTransfer.setData('text/plain', index);
+            },
+            dragEnd(event) {
+            event.target.classList.remove('select-drag-word');
             },
             allowDrop(event) {
                 event.preventDefault();
             },
             drop(event) {
                 event.preventDefault();
-                if (!this.hiddenWords.includes(this.draggedWord)) {
-                    this.hiddenWords.push(this.draggedWord);
+                if (!this.hiddenWords.includes(this.draggedWordIndex)) {
+                    this.hiddenWords.push(this.draggedWordIndex);
                 }
                 if (droppedElement === 'custom-button') {
                     this.isButtonDropped = true;
@@ -109,7 +129,10 @@
             dragStartHiddenWord(event, word) {
                 this.draggedWord = word;
                 event.dataTransfer.setData('text/plain', word);
-            }
+            },
+            isWordDragged(index) {
+                return this.hiddenWords.includes(index);
+            },
         },
         computed: {
             hiddenText() {
@@ -124,7 +147,7 @@
     
     app.config.errorHandler = (err) => {
         /* handle error */
-        console.log('pump error');
+        console.log('pump error',err);
     }
 </script>
 </html>

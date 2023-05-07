@@ -7,6 +7,21 @@
     background-color: #f9f9f9;
     cursor: grab;
 }
+
+.dragged-word {
+    background-color: #ff6b6b;
+    color: #ffffff;
+    border-color: #ff6b6b;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.select-drag-word {
+    background-color: #3f8cff;
+    color: #ffffff;
+    border-color: #3f8cff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 .drop-zone {
     display: inline-block;
     min-width: 500px;
@@ -42,6 +57,10 @@
     color: #fff;
     border-radius: 4px;
     user-select: none;
+}
+.selected-word {
+    background-color: #cce5ff; /* Cambia el color de fondo según lo desees */
+    color: #004085; /* Cambia el color del texto según lo desees */
 }
 
 .hidden-word {
