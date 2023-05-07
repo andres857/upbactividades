@@ -18,7 +18,22 @@
 <script type="module">
     import { createApp } from '/js/vue.esm-browser.js'
     const app = createApp({})
-
+    
+    const navbar ={
+        data() {
+            return {
+            }
+        },
+        template: `
+        <nav class="navbar bg-body-tertiary">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    Completar oraciones
+                </a>
+            </div>
+        </nav>
+        `
+    }
     const text = {
         data() {
             return {
@@ -39,6 +54,7 @@
                 <div class="row">
                     <div class="col-10">
                         <button @click.prevent="showCapturedText=true" type="button" class="btn btn-success">Capturar texto</button>
+                        
                         <div v-if="showCapturedText">
                             <p>Selecciona las palabras que deseas esconder arrastrándolas a la zona de palabras escondidas:</p>
                             <div v-for="(word, index) in message.split(' ')" :key="index" class="word"
@@ -46,6 +62,7 @@
                                 @dragstart="dragStart($event, word, index)">
                                 {{word}}
                             </div>
+
                             <p>Palabras escondidas:</p>
                             <div class="drop-zone"
                                 @dragover.prevent="allowDrop($event)"
@@ -64,7 +81,6 @@
                     </div>
                 </div>
             </div>
-
         `,
         methods: {
             createHiddenText() {
@@ -101,27 +117,11 @@
             }
         }
     }
-    const navbar ={
-        data() {
-            return {
-            }
-        },
-        template: `
-        <nav class="navbar bg-body-tertiary">
-            <div class="container">
-                <a class="navbar-brand" href="#">
-                    Completar oraciones
-                </a>
-            </div>
-        </nav>
-        `
-    }
+
     app.component('navbar', navbar)
     app.component('textinput', text)
     app.mount('#container1')
     
-
-
     app.config.errorHandler = (err) => {
         /* handle error */
         console.log('pump error');
