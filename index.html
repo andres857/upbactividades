@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <title>UPB</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/styles.css">
+        <style></style>
+    </head>
+
+<body>
+    <div id="container1">
+        <images></images>
+    </div>    
+</body>
+
+<script type="module">
+    import {createApp} from '/js/vue.esm-browser.js'
+    const app = createApp({})
+
+    const images = {
+        data() {
+            return {
+                isButtonDropped: false,
+                isImageDropped: false,
+                imagesUrls:[
+                    {
+                        url: 'https://images.pexels.com/photos/7195269/pexels-photo-7195269.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                        index: 0
+                    },
+                    {
+                        url: 'https://images.pexels.com/photos/102104/pexels-photo-102104.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                        index: 1
+                    },
+                    {
+                        url: 'https://images.pexels.com/photos/2872767/pexels-photo-2872767.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                        index: 2
+                    },
+                    {
+                        url: 'https://images.pexels.com/photos/4033025/pexels-photo-4033025.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                        index: 3
+                    }
+                ],
+                droppedImages: [],
+            }
+        },
+        template: `
+            <div class="container text-center">
+                <div class="row content-images">
+                    <div v-for="(image, index) in imagesUrls" :key="index" class="col-3">
+                        <div class="content-image">
+                            <img draggable="true" @dragstart="dragStartImage($event,index)" class="img-fluid same-size" :src="image.url"/>
+                            <p>{{index}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row justify-content-center mt-5 drop-zone-images">
+                    <div v-for=" (image, indexDrop) in imagesUrls" :key="indexDrop" @dragover="allowDropImage($event, indexDrop)" @drop="dropImage($event,indexDrop)" class="col-2 drop-zone-image">
+                        <div v-if="droppedImages[indexDrop]" >
+                            <img 
+                                class="drop-content-image"
+                                @dragstart="dragStartImage($event, indexDrop)" 
+                                :src="droppedImages[indexDrop].url"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `,
+        methods: {
+            dragStartImage(event, index){
+                event.dataTransfer.setData('text/plain', index.toString());
+                console.log(event);
+            },
+            allowDropImage(event,indexDrop){
+                console.log('allow drop Image');
+                console.log(event);
+                event.preventDefault();
+            },
+            dropImage(event, indexDrop){
+                event.preventDefault();
+                const indexImage = event.dataTransfer.getData('text/plain');
+                const indexImageNum = parseInt(indexImage)
+
+                if(indexImageNum === indexDrop){
+                    this.droppedImages[indexDrop] = this.imagesUrls[indexDrop]
+                }
+            }
+        },
+        computed: {
+        }
+    }
+    app.component('images', images)
+    app.mount('#container1')
+
+    app.config.errorHandler = (err) => {
+        /* handle error */
+        console.log('pump error', err);
+    }
+</script>
+
+
+</html>
