@@ -47,18 +47,28 @@
                 arraySolution: [],
                 draggedWord: false,
                 isWordDropped: false,
+                pairsResults: 0,
+                counterTemporizador: 10, // Define el contador con el valor inicial
+                messageTemporizador: "", // Define el mensaje
             }
         },
         template: `
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p>Contador: {{ counterTemporizador }}</p>
+                    <p>{{ messageTemporizador }}</p>
+                </div>
+            </div>
+
             <div class="container text-center">
                 <div class="row content-words">
                     <div class="col-6 content-word">
                         <div v-for="(word, index) in words" :key="index" class="word"
-                            draggable="true"
+                        draggable="true"
                             @dragstart="dragStartWord($event, word)"
                             @dragend="dragEndWord($event)"
                         >
-                            {{word}} - {{index}}
+                            {{word}} 
                         </div>
                     </div>
                 </div>
@@ -69,6 +79,7 @@
                     <div v-for="(image, index) in arraySolution" :key="index" class="col-3">
                         <div class="content-image">
                             <img 
+                                draggable="false"
                                 class="img-fluid same-size" 
                                 :src="image.url"
                             />
@@ -87,12 +98,37 @@
                             </div>
                     </div>
                 </div>
-                {{arraySolution}}
+
+                <div class="row">
+                    <div class="col-6">
+                        <button @click="deleteWordsArraySolution()" type="button" class="btn btn-danger">Eliminar seleccion</button>
+                    </div>
+                    <div class="col-6">
+                        <button @click="pairsFound()" type="button" class="btn btn-success">Resultados</button>
+                    </div>
+                </div>
+                --------------------------
+                {{pairsResults}}
             </div>
         `,
         created(){
             this.getWords();
             this.createZoneDropArray();
+        },
+        watch:{
+            counterTemporizador(newValue){
+                if(newValue <= 0){
+                    this.countdownFinished();
+                    console.log('EVENT COUNTER OVERTIME');
+                }
+            }
+        },
+        mounted(){
+            setInterval(() => {
+                if (this.counterTemporizador > 0) {
+                    this.counterTemporizador--;
+                }
+            }, 1000); // 1000 ms = 1 segundo  
         },
         methods: {
             getWords(){
@@ -122,20 +158,30 @@
                 const word = event.dataTransfer.getData('text/plain');
                 const targetIndex = event.target.getAttribute('data-index');
 
-                this.arraySolution[targetIndex].word = word
-                console.log(word);
-                console.log('targetIndex', targetIndex);
+                const wordExists = this.arraySolution.find( element => element.word === word )
+                if (!wordExists && this.arraySolution[targetIndex].word === ''){
+                    this.arraySolution[targetIndex].word = word
+                }
                 console.log('EVENT DROP *********');
-            }
-            // dropWord(event, indexDrop){
-            //     event.preventDefault();
-            //     const indexImage = event.dataTransfer.getData('text/plain');
-            //     const indexImageNum = parseInt(indexImage)
-
-            //     if(indexImageNum === indexDrop){
-            //         this.droppedImages[indexDrop] = this.imagesUrls[indexDrop]
-            //     }
-            // }
+            },
+            deleteWordsArraySolution(){
+                this.arraySolution.forEach( element => {
+                    element.word = ''
+                })
+            },
+            pairsFound(){
+                let count = 0
+                this.arraySolution.forEach( element =>{
+                    let indexWord = this.dataImages.findIndex( img => img.word === element.word );
+                    if(this.dataImages[indexWord].url === element.url){
+                        count = count + 1;
+                        this.pairsResults = count
+                    }
+                })
+            },
+            countdownFinished() {
+                this.messageTemporizador = "El contador ha llegado a cero.";
+            },
         },
         computed: {
         }
