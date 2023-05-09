@@ -48,14 +48,14 @@
                 draggedWord: false,
                 isWordDropped: false,
                 pairsResults: 0,
-                counterTemporizador: 10, // Define el contador con el valor inicial
+                counterTemporizador: 120, // Define el contador con el valor inicial
                 messageTemporizador: "", // Define el mensaje
             }
         },
         template: `
             <div class="row">
                 <div class="col-12 text-center">
-                    <p>Contador: {{ counterTemporizador }}</p>
+                    <p>Contador: {{ formattedCounter }}</p>
                     <p>{{ messageTemporizador }}</p>
                 </div>
             </div>
@@ -184,6 +184,11 @@
             },
         },
         computed: {
+            formattedCounter() {
+                let minutes = Math.floor(this.counterTemporizador / 60);
+                let seconds = this.counterTemporizador % 60;    
+                return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
         }
     }
     app.component('images', images)
