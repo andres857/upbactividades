@@ -28,26 +28,23 @@
                     {
                         url: 'https://images.pexels.com/photos/7195269/pexels-photo-7195269.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
                         word: 'naranja',
-                        index: 0
                     },
                     {
                         url: 'https://images.pexels.com/photos/102104/pexels-photo-102104.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
                         word: 'manzana',
-                        index: 1
                     },
                     {
                         url: 'https://images.pexels.com/photos/2872767/pexels-photo-2872767.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
                         word: 'banano',
-                        index: 2
                     },
                     {
                         url: 'https://images.pexels.com/photos/4033025/pexels-photo-4033025.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
                         word: 'mandarina',
-                        index: 3
                     }
                 ],
                 words:[],
-                droppedWords: [],
+                images:[],
+                arraySolution: [],
                 draggedWord: false,
                 isWordDropped: false,
             }
@@ -58,7 +55,7 @@
                     <div class="col-6 content-word">
                         <div v-for="(word, index) in words" :key="index" class="word"
                             draggable="true"
-                            @dragstart="dragStartWord($event, word, index)"
+                            @dragstart="dragStartWord($event, word)"
                             @dragend="dragEndWord($event)"
                         >
                             {{word}} - {{index}}
@@ -69,38 +66,49 @@
 
             <div class="container text-center">
                 <div class="row content-images">
-                    <div v-for="(image, index) in dataImages" :key="index" class="col-3">
+                    <div v-for="(image, index) in arraySolution" :key="index" class="col-3">
                         <div class="content-image">
                             <img 
                                 class="img-fluid same-size" 
                                 :src="image.url"
                             />
-                            <p>{{index}}</p>
-                        </div>
-
-                        <div class="drop-zone-words"
-                            @drop="dropWord($event)"
-                            @dragover="allowDropWord($event)"
-                            >
-                            <div v-if="false" class="word">
-
-                            </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="row">
+                    <div  v-for="(word, index) in dataImages" class=" col-3 drop-zone-words"
+                        @drop="dropWord($event)"
+                        @dragover="allowDropWord($event)"
+                        :data-index="index"
+                        >
+                            <div v-if="arraySolution[index].word !== ''" class="word" > 
+                                {{arraySolution[index].word}}
+                            </div>
+                    </div>
+                </div>
+                {{arraySolution}}
             </div>
         `,
         created(){
             this.getWords();
+            this.createZoneDropArray();
         },
         methods: {
             getWords(){
                 this.words = this.dataImages.map( data => data.word);
             },
-            dragStartWord(event, word, index){
+            createZoneDropArray(){
+                this.dataImages.forEach( element => {
+                    this.arraySolution.push({
+                        url: element.url,
+                        word: ''
+                    })
+                })
+            },
+            dragStartWord(event, word){
                 console.log('EVENT DRAG start');
                 event.dataTransfer.setData('text/plain', word.toString());
-                event.dataTransfer.setData('text/plain', index.toString());
             },
             dragEndWord(event){
                 console.log('EVENT DRAG end');
@@ -112,10 +120,11 @@
             dropWord(event){
                 event.preventDefault();
                 const word = event.dataTransfer.getData('text/plain');
-                const indexString = event.dataTransfer.getData('text/plain');
+                const targetIndex = event.target.getAttribute('data-index');
 
-                const index = parseInt(indexString)
-                console.log(word,indexString);
+                this.arraySolution[targetIndex].word = word
+                console.log(word);
+                console.log('targetIndex', targetIndex);
                 console.log('EVENT DROP *********');
             }
             // dropWord(event, indexDrop){
