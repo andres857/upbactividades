@@ -40,6 +40,14 @@
                     {
                         url: 'https://images.pexels.com/photos/4033025/pexels-photo-4033025.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
                         word: 'mandarina',
+                    },
+                    {
+                        url:'https://images.pexels.com/photos/15145653/pexels-photo-15145653.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+                        word:'fresas'
+                    },
+                    {
+                        url:'https://images.pexels.com/photos/1098537/pexels-photo-1098537.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+                        word: 'uvas'
                     }
                 ],
                 words:[],
@@ -64,7 +72,7 @@
                 <div class="row content-words">
                     <div class="col-6 content-word">
                         <div v-for="(word, index) in words" :key="index" class="word"
-                        draggable="true"
+                            draggable="true"
                             @dragstart="dragStartWord($event, word)"
                             @dragend="dragEndWord($event)"
                         >
@@ -84,18 +92,15 @@
                                 :src="image.url"
                             />
                         </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div  v-for="(word, index) in dataImages" class=" col-3 drop-zone-words"
-                        @drop="dropWord($event)"
-                        @dragover="allowDropWord($event)"
-                        :data-index="index"
-                        >
+                        <div class="col-3 drop-zone-words"
+                            @drop="dropWord($event)"
+                            @dragover="allowDropWord($event)"
+                            :data-index="index"
+                            >
                             <div v-if="arraySolution[index].word !== ''" class="word" > 
                                 {{arraySolution[index].word}}
                             </div>
+                        </div>
                     </div>
                 </div>
 
