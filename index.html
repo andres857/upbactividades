@@ -56,7 +56,7 @@
                 draggedWord: false,
                 isWordDropped: false,
                 pairsResults: 0,
-                counterTemporizador: 120, // Define el contador con el valor inicial
+                counterTemporizador: 10, // Define el contador con el valor inicial
                 messageTemporizador: "", // Define el mensaje
             }
         },
@@ -185,7 +185,12 @@
                 })
             },
             countdownFinished() {
-                this.messageTemporizador = "El contador ha llegado a cero.";
+                this.messageTemporizador = "El tiempo termino.";
+                this.arraySolution.forEach( element => {
+                    if(element.word === ''){
+                        element.word = 0
+                    }
+                })
             },
         },
         computed: {
