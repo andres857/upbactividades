@@ -4,30 +4,84 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Sentence completion</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+        <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script> -->
+        <script src="https://cdn.tailwindcss.com"></script>
 
-        <link rel="stylesheet" href="./css/styles.css">
-        <style></style>
+        <!-- <link rel="stylesheet" href="./css/styles.css"> -->
     </head>
 
 <body>
     <div id="container1">
-        <images></images>
+        <div class="container  m-12">
+            <div class="flex flex-row">
+                <p class="basis-1/4"> Contador: {{ formattedCounter }} </p>
+                <p class="basis-1/4"> {{ messageTemporizador }} </p>
+            </div>
+
+            <div class="grid grid-cols-8 gap-4">
+                <div v-for="(word, index) in words" :key="index" 
+                class="bg-gray-100 border border-gray-300 rounded px-2 py-1.5 text-center"
+                style="cursor: grab;"
+                draggable="true"
+                @dragstart="dragStartWord($event, word)"
+                @dragend="dragEndWord($event)"
+                >
+                    <span>{{word}}</span> 
+                </div>
+            </div>
+
+            <div class="grid grid-cols-5 bg-gray-100 gap-6 items-center">
+                <div v-for="(image, index) in arraySolution" :key="index">
+                    <div class="grid justify-center">
+                        <img 
+                        class="w-52 object-cover h-52 rounded" 
+                        draggable="false"
+                        :src="image.url"
+                        />  
+                    </div>
+                    <div class="grid justify-center h-14 px-16 py-2 mx-4 transition-colors duration-200 bg-gray-200 hover:bg-gray-300" 
+                        @drop="dropWord($event)"
+                        @dragover="allowDropWord($event)"
+                        :data-index="index"
+                    >
+                        <div v-if="arraySolution[index].word !== ''" class="bg-gray-100 border border-gray-300 rounded px-2 py-1.5 text-center"> 
+                            <span>{{arraySolution[index].word}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>            
+        </div>
+
+
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-6">
+                    <button @click="deleteWordsArraySolution()" class="bg-red-700 border border-red-300 rounded px-4 py-1.5 text-center text-white">Eliminar seleccion</button>
+                </div>
+                <div class="col-6">
+                    <button @click="pairsFound()" class="bg-green-700 border border-red-300 rounded px-4 py-1.5 text-center text-white">Resultados</button>
+                </div>
+            </div>
+            --------------------------
+            {{pairsResults}}
+        </div>
     </div>    
 </body>
 
 <script type="module">
-    import {createApp} from '/js/vue.esm-browser.js'
-    const app = createApp({})
-
-    const images = {
+    import { createApp } from '/js/vue.esm-browser.js'
+    const app = createApp({
         data() {
             return {
                 dataImages:[
                     {
                         url: 'https://images.pexels.com/photos/7195269/pexels-photo-7195269.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
                         word: 'naranja',
+                    },
+                    {
+                        url:'https://images.pexels.com/photos/1098537/pexels-photo-1098537.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+                        word: 'uvas'
                     },
                     {
                         url: 'https://images.pexels.com/photos/102104/pexels-photo-102104.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
@@ -46,9 +100,25 @@
                         word:'fresas'
                     },
                     {
-                        url:'https://images.pexels.com/photos/1098537/pexels-photo-1098537.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-                        word: 'uvas'
-                    }
+                        url: 'https://images.pexels.com/photos/2872767/pexels-photo-2872767.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                        word: 'banano',
+                    },
+                    {
+                        url: 'https://images.pexels.com/photos/2872767/pexels-photo-2872767.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                        word: 'banano',
+                    },                    {
+                        url: 'https://images.pexels.com/photos/2872767/pexels-photo-2872767.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                        word: 'banano',
+                    },                    {
+                        url: 'https://images.pexels.com/photos/2872767/pexels-photo-2872767.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                        word: 'banano',
+                    },                    {
+                        url: 'https://images.pexels.com/photos/2872767/pexels-photo-2872767.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                        word: 'banano',
+                    },                    {
+                        url: 'https://images.pexels.com/photos/2872767/pexels-photo-2872767.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+                        word: 'banano',
+                    },
                 ],
                 words:[],
                 images:[],
@@ -56,66 +126,10 @@
                 draggedWord: false,
                 isWordDropped: false,
                 pairsResults: 0,
-                counterTemporizador: 10, // Define el contador con el valor inicial
+                counterTemporizador: 30, // Define el contador con el valor inicial en segundos
                 messageTemporizador: "", // Define el mensaje
             }
         },
-        template: `
-            <div class="row">
-                <div class="col-12 text-center">
-                    <p>Contador: {{ formattedCounter }}</p>
-                    <p>{{ messageTemporizador }}</p>
-                </div>
-            </div>
-
-            <div class="container text-center">
-                <div class="row content-words">
-                    <div class="col-6 content-word">
-                        <div v-for="(word, index) in words" :key="index" class="word"
-                            draggable="true"
-                            @dragstart="dragStartWord($event, word)"
-                            @dragend="dragEndWord($event)"
-                        >
-                            {{word}} 
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="container text-center">
-                <div class="row content-images">
-                    <div v-for="(image, index) in arraySolution" :key="index" class="col-3">
-                        <div class="content-image">
-                            <img 
-                                draggable="false"
-                                class="img-fluid same-size" 
-                                :src="image.url"
-                            />
-                        </div>
-                        <div class="col-3 drop-zone-words"
-                            @drop="dropWord($event)"
-                            @dragover="allowDropWord($event)"
-                            :data-index="index"
-                            >
-                            <div v-if="arraySolution[index].word !== ''" class="word" > 
-                                {{arraySolution[index].word}}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-6">
-                        <button @click="deleteWordsArraySolution()" type="button" class="btn btn-danger">Eliminar seleccion</button>
-                    </div>
-                    <div class="col-6">
-                        <button @click="pairsFound()" type="button" class="btn btn-success">Resultados</button>
-                    </div>
-                </div>
-                --------------------------
-                {{pairsResults}}
-            </div>
-        `,
         created(){
             this.getWords();
             this.createZoneDropArray();
@@ -200,14 +214,9 @@
                 return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             }
         }
-    }
-    app.component('images', images)
-    app.mount('#container1')
 
-    app.config.errorHandler = (err) => {
-        /* handle error */
-        console.log('pump error', err);
-    }
+    }).mount('#container1')
+
 </script>
 
 
