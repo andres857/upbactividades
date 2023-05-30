@@ -12,13 +12,16 @@
     </head>
 
 <body>
-    <div id="container1">
-        <div class="container  m-12">
-            <div class="flex flex-row">
-                <p class="basis-1/4"> Contador: {{ formattedCounter }} </p>
+    <div id="container">
+        <div class="container mx-auto">
+            <div class="grid grid-col-1 justify-center">
+                <p class="basis-1/4"> Tiempo restante: {{ formattedCounter }} </p>
                 <p class="basis-1/4"> {{ messageTemporizador }} </p>
             </div>
+        </div>
 
+        <div class="container mx-auto">
+            <!-- section words -->
             <div class="grid grid-cols-8 gap-4">
                 <div v-for="(word, index) in words" :key="index" 
                 class="bg-gray-100 border border-gray-300 rounded px-2 py-1.5 text-center"
@@ -215,7 +218,7 @@
             }
         }
 
-    }).mount('#container1')
+    }).mount('#container')
 
 </script>
 
